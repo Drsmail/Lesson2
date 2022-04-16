@@ -19,8 +19,8 @@ class Level():
         for row_index, row in enumerate(self.map):
             #print(f"Строка: {row} А её номер {row_index}")
             for col_index, cell in enumerate(row):
-                #print(f" Ячейка: {cell} а её номер {col_index}")
-                print(f" В ячейке (y,x): {row_index,col_index} находится  {cell}")
+                # print(f" Ячейка: {cell} а её номер {col_index}")
+                # print(f" В ячейке (y,x): {row_index,col_index} находится  {cell}")
                 y = row_index * tile_size
                 x = col_index * tile_size
                 if (cell == 'X'):
