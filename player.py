@@ -18,10 +18,13 @@ class Player(pygame.sprite.Sprite):
 
         #player anim
         self.frame_index = 0
-        self.animation_speed = 0.25
-        self.status = 'stand'
+        self.animation_speed = 1/5
         self.import_hero_assets()
 
+        #player status
+        self.status = 'stand'
+        self.facing_right = True  # NEW CODE
+        self.on_ground = False
 
 
     def import_hero_assets(self):
@@ -50,13 +53,21 @@ class Player(pygame.sprite.Sprite):
 
         # TODO Нельзя идти вправо и однавременно прыг
 
+        flag = True
+
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
-        elif keys[pygame.K_LEFT]:
+            self.facing_right = True  # NEW CODE
+            flag = False
+        if keys[pygame.K_LEFT]:
             self.direction.x = -1
-        elif keys[pygame.K_UP]:
+            self.facing_right = False  # NEW CODE
+            flag = False
+        if keys[pygame.K_UP] and self.on_ground:
+            self.on_ground = False
             self.jump()
-        else:
+            flag = False
+        if flag:
             self.direction.x = 0
 
         # if keys[pygame.K_DOWN]:
@@ -86,7 +97,13 @@ class Player(pygame.sprite.Sprite):
         print(f'frame_index {self.frame_index}')
         print(f'status {self.status}')
 
-        self.image = animation[int(self.frame_index)]
+        img = animation[int(self.frame_index)]
+
+        if self.facing_right == True: # NEW CODE
+            self.image = img
+        elif self.facing_right == False: # NEW CODE
+            flip_img = pygame.transform.flip(img,True,False)
+            self.image = flip_img
 
 
 
