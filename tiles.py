@@ -11,5 +11,7 @@ class MyTiles(pygame.sprite.Sprite):
         self.image = pygame.image.load('assets/mapTiles/квадратик.png')
         self.rect = self.image.get_rect(topleft = pos)
 
+
+
     def update():
         pass

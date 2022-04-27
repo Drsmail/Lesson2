@@ -1,6 +1,7 @@
 import pygame
 import sys
 
+import global_settings
 from global_settings import *
 from level import Level
 
@@ -17,7 +18,7 @@ lvl1 = Level(level_map, screen)
 
 lvl1.load()
 
-while 1:
+while global_settings.GameIsRuning:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -33,3 +34,5 @@ while 1:
     #screen.blit(ino.image,ino.rect)
 
     pygame.display.update()
+
+sys.exit()

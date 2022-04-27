@@ -1,4 +1,5 @@
 import pygame
+import global_settings
 from  support import import_folder
 
 class Player(pygame.sprite.Sprite):
@@ -18,19 +19,23 @@ class Player(pygame.sprite.Sprite):
 
         #player anim
         self.frame_index = 0
-        self.animation_speed = 1/5
+        self.animation_speed = 0.25
         self.import_hero_assets()
 
         #player status
+        self.health = 100
+        self.is_green = True
         self.status = 'stand'
-        self.facing_right = True  # NEW CODE
+        self.facing_right = True
         self.on_ground = False
+
+
 
 
     def import_hero_assets(self):
         path_to_anim = "C:/Users/Dr_smail/PycharmProjects/Lesson2/anim/"
 
-        self.animations = {'walk': [], 'jump': [], 'death': []}
+        self.animations = {'walk': [], 'jump': [], 'death': [],'stand': []}
 
         for anim in self.animations.keys():
             full_path = path_to_anim + '/' + anim
@@ -51,24 +56,20 @@ class Player(pygame.sprite.Sprite):
 
         keys = pygame.key.get_pressed()
 
-        # TODO Нельзя идти вправо и однавременно прыг
-
-        flag = True
-
         if keys[pygame.K_RIGHT]:
+            self.facing_right = True
             self.direction.x = 1
-            self.facing_right = True  # NEW CODE
-            flag = False
         if keys[pygame.K_LEFT]:
+            self.facing_right = False
             self.direction.x = -1
-            self.facing_right = False  # NEW CODE
-            flag = False
+        if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
+            self.direction.x = 0
         if keys[pygame.K_UP] and self.on_ground:
             self.on_ground = False
             self.jump()
-            flag = False
-        if flag:
-            self.direction.x = 0
+        if keys[pygame.K_f]:
+            self.kill()
+
 
         # if keys[pygame.K_DOWN]:
         #     self.direction.y = 1
@@ -94,18 +95,32 @@ class Player(pygame.sprite.Sprite):
         if self.frame_index > len(animation) - 1:
             self.frame_index = 0
 
-        print(f'frame_index {self.frame_index}')
-        print(f'status {self.status}')
+        #print(f'frame_index {self.frame_index}')
+        #print(f'status {self.status}')
 
         img = animation[int(self.frame_index)]
 
-        if self.facing_right == True: # NEW CODE
+        if  self.facing_right == True:
             self.image = img
-        elif self.facing_right == False: # NEW CODE
+        else:
             flip_img = pygame.transform.flip(img,True,False)
             self.image = flip_img
 
+    def death(self):
 
+        print(f"Игрок умер")
+        status = "death"
+        global_settings.GameIsRuning = False
+
+
+    def recive_demage(self, amount):
+
+        self.health = self.health - amount;
+
+        print(f"Игрок получил урон, осталось {self.health} хп")
+
+        if self.health <= 0:
+            self.death()
 
     def update(self):
 
