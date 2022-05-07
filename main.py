@@ -1,5 +1,6 @@
 import pygame
 import sys
+import json
 
 import global_settings
 from global_settings import *
@@ -14,7 +15,14 @@ clock = pygame.time.Clock()
 
 
 #a = MyTiles( (200,200),tile_size)
-lvl1 = Level(level_map, screen)
+
+level_path = "Ino_game_asssets/Levels"
+with open("Ino_game_asssets/Levels/level_0.tmj", "r") as level_row:
+    level_data = json.load(level_row)
+
+
+print(level_data)
+lvl1 = Level(level_data, level_path, screen)
 
 lvl1.load()
 

@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, pos):
         super().__init__()
-        self.image = pygame.image.load('anim/walk/1.png')
+        self.image = pygame.image.load('Ino_game_asssets/player/walk/1.png')
         # self.image.fill("green")
         self.rect = self.image.get_rect(topleft=pos)
 
@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 8
         self.gravity = 0.8
-        self.jump_speed = -15
+        self.jump_speed = -40
 
         #player anim
         self.frame_index = 0
@@ -34,6 +34,7 @@ class Player(pygame.sprite.Sprite):
 
     def import_hero_assets(self):
         path_to_anim = "C:/Users/Dr_smail/PycharmProjects/Lesson2/anim/"
+        path_to_anim = 'C:/Users/Dr_smail/PycharmProjects/Lesson2/Ino_game_asssets/player'
 
         self.animations = {'walk': [], 'jump': [], 'death': [],'stand': []}
 

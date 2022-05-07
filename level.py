@@ -1,53 +1,117 @@
 import pygame
 
-from tiles import MyTiles
+import tiles
+
+import xml.dom.minidom
+
 from pool_tile import Pool_tile
 from player import Player
+from goal import Goal
 from global_settings import tile_size
 from button import Button
 from door import Door
 
 
+
+
 class Level():
 
-    def __init__(self, map, screen):
+    def __init__(self, json_data, json_path, screen):
+
+        self.json_data = json_data
+        self.json_path = json_path
+        self.screen = screen
 
         self.GlobalPlayer = None
-        self.map = map
+        self.GlobalGoal = None
+
+
         self.tiles_groop = pygame.sprite.Group()
         self.pool_groop = pygame.sprite.Group()
         self.player_groop = pygame.sprite.Group()
-        self.screen = screen
-
-        self.button_groop = pygame.sprite.Group()
-        self.button_groop.add(Button((400, 400), 3))
-        self.button_groop.add(Button((400, 200), 3))
-
+        self.Goal_groop = pygame.sprite.Group()
         self.door_groop = pygame.sprite.Group()
-        d = Door((8*64, 6*64), 3)
-        self.door_groop.add(d)
-        self.tiles_groop.add(d)
+        self.button_groop = pygame.sprite.Group()
+        self.fruits_groop = pygame.sprite.Group()
+
+
 
     def load(self):
 
-        for row_index, row in enumerate(self.map):
-            # print(f"Строка: {row} А её номер {row_index}")
-            for col_index, cell in enumerate(row):
-                # print(f" Ячейка: {cell} а её номер {col_index}")
-                # print(f" В ячейке (y,x): {row_index,col_index} находится  {cell}")
-                y = row_index * tile_size
-                x = col_index * tile_size
-                if (cell == 'X'):
-                    temp = MyTiles((x, y), tile_size)
+        # load all images
+
+        All_imges = []
+        All_imges.append(pygame.Surface((64, 64)))
+
+        for tileset in self.json_data['tilesets']:
+            path = tileset['source']
+            path = self.json_path + '/' + path
+            domtree = xml.dom.minidom.parse(path)
+            group = domtree.documentElement
+            images = group.getElementsByTagName('image')
+            print(f"New tilset {path} with imgs:")
+            for image in images:
+                print(f"-- Tileset {image.getAttribute('source')}--")
+                img_path = path + '/..' + '/' + image.getAttribute('source')
+                All_imges.append(pygame.image.load(img_path))
+                # image.getElementsByTagName('')
+
+        print(self.json_data['layers'])
+
+        col = self.json_data['layers'][0]['width']  # x
+        str = self.json_data['layers'][0]['height']  # y
+
+        for layer in self.json_data['layers']:
+            print(layer['name'])
+            #print(layer['data'])
+
+            for index, cell in enumerate(layer['data']):
+
+                if cell == 0:
+                    continue
+
+                x = (index % col) * tile_size
+                y = (index // col) * tile_size
+
+                if layer['name'] == 'Terrain':
+                    img = All_imges[cell]
+                    temp = tiles.Static_tile((x, y), img)
                     self.tiles_groop.add(temp)
-                elif (cell == 'P'):
-                    temp = Player((x, y))
-                    self.GlobalPlayer = temp
-                    self.player_groop.add(temp)
-                elif cell in ['(', ')', '[', ']']:
-                    temp = Pool_tile((x, y), cell)
+
+                elif layer['name'] == 'Pools':
+
+                    green = False
+                    img = All_imges[cell]
+                    if img.get_at((45, 5))[1] == 164:
+                        green = True
+                    temp = Pool_tile((x, y), img, green)
                     self.tiles_groop.add(temp)
                     self.pool_groop.add(temp)
+
+                elif layer['name'] == 'Fruits':
+                    img = All_imges[cell]
+                    temp = tiles.Static_tile((x, y), img)
+                    self.fruits_groop.add(temp)
+
+                elif layer['name'] == 'Player':
+                    #img = All_imges[cell]
+                    #temp = tiles.Static_tile((x, y), img)
+                    temp = Player((x,y))
+                    self.GlobalPlayer = temp
+                    self.player_groop.add(temp)
+
+                elif layer['name'] == 'Rocket':
+                    #img = All_imges[cell]
+                    #temp = tiles.Static_tile((x, y), img)
+
+                    temp = Goal((x,y))
+
+                    self.GlobalGoal = temp
+                    self.Goal_groop.add(temp)
+
+
+
+
 
     def horizontal_movement_collision(self):
 
@@ -88,27 +152,39 @@ class Level():
 
     def check_all_buttons(self):
 
+        if len(self.button_groop.sprites()) == 0:
+            return -1
+
         player = self.GlobalPlayer
 
         for sprite in self.button_groop.sprites():
             if sprite.rect.colliderect(player.rect):
 
-                id = sprite.pressed()
+                button_id = sprite.id
 
                 for door in self.door_groop.sprites():
-                    if door.id == id:
-                        door.open()
-                        self.tiles_groop.remove(door)
+                    if door.id == button_id:
+                        sprite.activate(door)
             else:
 
-                # TODO 2 КНОПКИ ПЕРВАЯ ОТКРЫВАЕТ ВТОРАЯ ЗАКРЫВАЕТ ПЕРВУЮ ИСПРАВИТЬ!
-
-                id = sprite.not_active()
+                button_id = sprite.id
 
                 for door in self.door_groop.sprites():
-                    if door.id == id:
-                        door.close()
-                        self.tiles_groop.add(door)
+                    if door.id == button_id:
+                        sprite.deactivate(door)
+
+    def chek_goal_reach(self):
+
+        if self.GlobalGoal == None:
+            print ("А как так без ракеты?")
+            return -1
+
+        player = self.GlobalPlayer
+
+        if self.GlobalGoal.rect.colliderect(player.rect):
+            print("Уровень пройден")
+
+
 
 
     def run(self):
@@ -118,11 +194,14 @@ class Level():
         self.horizontal_movement_collision()
         self.vertical_movement_collision()
         self.check_all_buttons()
+        self.chek_goal_reach()
 
-        print(len(self.tiles_groop))
 
         self.player_groop.draw(self.screen)
         self.tiles_groop.draw(self.screen)
         self.pool_groop.draw(self.screen)
         self.button_groop.draw(self.screen)
         self.door_groop.draw(self.screen)
+        self.fruits_groop.draw(self.screen)
+        self.Goal_groop.draw(self.screen)
+
