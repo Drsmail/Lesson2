@@ -31,18 +31,18 @@ class Static_tile(base_tile):
 
 class Dinamyc_tile(base_tile):
 
-    def __init__(self, pos, img):
+    def __init__(self, pos, imgs, frame_speed):
         size = (64, 64)  # TODO
 
         super().__init__(pos, size)
 
-        self.anim = img
-        self.image = img[0]
-        self.current_image = 0
+        self.anim = imgs
+        self.image = imgs[0]
+        self.frame_index = 0
+        self.frame_speed = frame_speed
 
     def update(self):
 
-        self.image = self.anim[self.current_image]
-        self.current_image = (self.current_image + 1) % len(self.anim)
-
-        pass
+        self.image = self.anim[int(self.frame_index)]
+        self.frame_index = (self.frame_index + self.frame_speed)
+        self.frame_index = self.frame_index % len(self.anim)

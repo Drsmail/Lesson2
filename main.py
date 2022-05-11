@@ -14,6 +14,7 @@ pygame.display.set_caption("инопланетянины")
 clock = pygame.time.Clock()
 
 
+
 #a = MyTiles( (200,200),tile_size)
 
 level_path = "Ino_game_asssets/Levels"

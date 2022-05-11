@@ -7,11 +7,10 @@ import xml.dom.minidom
 from pool_tile import Pool_tile
 from player import Player
 from goal import Goal
+from fruits import Fruit
 from global_settings import tile_size
 from button import Button
 from door import Door
-
-
 
 
 class Level():
@@ -25,7 +24,6 @@ class Level():
         self.GlobalPlayer = None
         self.GlobalGoal = None
 
-
         self.tiles_groop = pygame.sprite.Group()
         self.pool_groop = pygame.sprite.Group()
         self.player_groop = pygame.sprite.Group()
@@ -34,7 +32,10 @@ class Level():
         self.button_groop = pygame.sprite.Group()
         self.fruits_groop = pygame.sprite.Group()
 
+        self.load_assets()
 
+    def load_assets(self):
+        Pool_tile.load_assets()
 
     def load(self):
 
@@ -63,7 +64,7 @@ class Level():
 
         for layer in self.json_data['layers']:
             print(layer['name'])
-            #print(layer['data'])
+            # print(layer['data'])
 
             for index, cell in enumerate(layer['data']):
 
@@ -81,37 +82,30 @@ class Level():
                 elif layer['name'] == 'Pools':
 
                     green = False
+                    left = False
                     img = All_imges[cell]
                     if img.get_at((45, 5))[1] == 164:
                         green = True
-                    temp = Pool_tile((x, y), img, green)
+                    if img.get_at((10, 15)) == (182, 154, 94):
+                        left = True
+                    temp = Pool_tile((x, y), green, left)
                     self.tiles_groop.add(temp)
                     self.pool_groop.add(temp)
 
                 elif layer['name'] == 'Fruits':
                     img = All_imges[cell]
-                    temp = tiles.Static_tile((x, y), img)
+                    temp = Fruit((x, y), img)
                     self.fruits_groop.add(temp)
 
                 elif layer['name'] == 'Player':
-                    #img = All_imges[cell]
-                    #temp = tiles.Static_tile((x, y), img)
-                    temp = Player((x,y))
+                    temp = Player((x, y))
                     self.GlobalPlayer = temp
                     self.player_groop.add(temp)
 
                 elif layer['name'] == 'Rocket':
-                    #img = All_imges[cell]
-                    #temp = tiles.Static_tile((x, y), img)
-
-                    temp = Goal((x,y))
-
+                    temp = Goal((x, y))
                     self.GlobalGoal = temp
                     self.Goal_groop.add(temp)
-
-
-
-
 
     def horizontal_movement_collision(self):
 
@@ -173,19 +167,28 @@ class Level():
                     if door.id == button_id:
                         sprite.deactivate(door)
 
+    def check_all_fuits(self):
+
+        if len(self.fruits_groop.sprites()) == 0:
+            return -1
+
+        player = self.GlobalPlayer
+
+        for sprite in self.fruits_groop.sprites():
+            if sprite.rect.colliderect(player.rect):
+                sprite.on_player_colade()
+
     def chek_goal_reach(self):
 
         if self.GlobalGoal == None:
-            print ("А как так без ракеты?")
+            print("А как так без ракеты?")
             return -1
 
         player = self.GlobalPlayer
 
         if self.GlobalGoal.rect.colliderect(player.rect):
-            print("Уровень пройден")
-
-
-
+            self.GlobalGoal.on_player_reach(player)
+            #print("Уровень пройден")
 
     def run(self):
 
@@ -194,8 +197,8 @@ class Level():
         self.horizontal_movement_collision()
         self.vertical_movement_collision()
         self.check_all_buttons()
+        self.check_all_fuits()
         self.chek_goal_reach()
-
 
         self.player_groop.draw(self.screen)
         self.tiles_groop.draw(self.screen)
@@ -205,3 +208,5 @@ class Level():
         self.fruits_groop.draw(self.screen)
         self.Goal_groop.draw(self.screen)
 
+        self.pool_groop.update()
+        self.Goal_groop.update()
