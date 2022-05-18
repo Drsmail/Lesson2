@@ -1,35 +1,31 @@
 import pygame
 import sys
-
 from global_settings import *
-from level import Level
+from game import Game
 
 FPS = 60
 size = screen_width, screen_height
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("инопланетянины")
+pygame.font.init()
+pygame.mixer.init()
 
 clock = pygame.time.Clock()
 
+inoGame = Game(screen)
 
-#a = MyTiles( (200,200),tile_size)
-lvl1 = Level(level_map, screen)
 
-lvl1.load()
-
-while 1:
+while inoGame.GameIsRuning:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             print("Игра закрылась!")
             sys.exit()
 
-
     clock.tick(FPS)
     screen.fill((0,0,255))
 
-    lvl1.run()
-
-    #screen.blit(ino.image,ino.rect)
-
+    inoGame.runGame()
     pygame.display.update()
+
+sys.exit()
