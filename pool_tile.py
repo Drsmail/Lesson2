@@ -19,7 +19,7 @@ class Pool_tile(Dinamyc_tile):
 
     def __init__(self, pos, is_green, is_left):
         anim = self.anim_dict[is_green, is_left]
-        super().__init__(pos, anim, frame_speed = 1/10)
+        super().__init__(pos, anim, frame_speed = 1/64)
         self.is_green = is_green
 
     @staticmethod

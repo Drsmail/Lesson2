@@ -24,20 +24,18 @@ class Goal(pygame.sprite.Sprite):
     def start_rocket(self):
 
 
-        self.image = self.anim[int(self.frame_index)]
-        self.frame_index += self.frame_speed
-
         if self.frame_index >= len(self.anim):
             print('ЗАКОНЧИЛИ')
             self.update = self.launch_rocket
+        else:
+            self.image = self.anim[int(self.frame_index)]
+            self.frame_index += self.frame_speed
 
     def launch_rocket(self):
         self.rect.y -= 5
 
         if self.rect.y < 0:
             print("Можно грузить следующий уровень")
-
-
 
     def update(self):
         pass

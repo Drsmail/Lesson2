@@ -1,9 +1,7 @@
 import pygame
 from tiles import Static_tile
 
-
 class Fruit(Static_tile):
-
 
     def __init__(self, pos, img):
         super().__init__(pos, img)

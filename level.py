@@ -9,6 +9,7 @@ from player import Player
 from goal import Goal
 from fruits import Fruit
 from global_settings import tile_size
+from ui import UI
 from button import Button
 from door import Door
 
@@ -16,6 +17,9 @@ from door import Door
 class Level():
 
     def __init__(self, json_data, json_path, screen):
+
+        self.UserInterface = UI(screen)
+        self.level_score = 0
 
         self.json_data = json_data
         self.json_path = json_path
@@ -65,47 +69,75 @@ class Level():
         for layer in self.json_data['layers']:
             print(layer['name'])
             # print(layer['data'])
+            if layer['type'] == "tilelayer":
+                for index, cell in enumerate(layer['data']):
 
-            for index, cell in enumerate(layer['data']):
+                    if cell == 0:
+                        continue
 
-                if cell == 0:
-                    continue
+                    x = (index % col) * tile_size
+                    y = (index // col) * tile_size
 
-                x = (index % col) * tile_size
-                y = (index // col) * tile_size
+                    if layer['name'] == 'Terrain':
+                        img = All_imges[cell]
+                        temp = tiles.Static_tile((x, y), img)
+                        self.tiles_groop.add(temp)
 
-                if layer['name'] == 'Terrain':
-                    img = All_imges[cell]
-                    temp = tiles.Static_tile((x, y), img)
-                    self.tiles_groop.add(temp)
+                    elif layer['name'] == 'Pools':
 
-                elif layer['name'] == 'Pools':
+                        green = False
+                        left = False
+                        img = All_imges[cell]
+                        if img.get_at((45, 5))[1] == 164:
+                            green = True
+                        if img.get_at((10, 15)) == (182, 154, 94):
+                            left = True
+                        temp = Pool_tile((x, y), green, left)
+                        self.tiles_groop.add(temp)
+                        self.pool_groop.add(temp)
 
-                    green = False
-                    left = False
-                    img = All_imges[cell]
-                    if img.get_at((45, 5))[1] == 164:
-                        green = True
-                    if img.get_at((10, 15)) == (182, 154, 94):
-                        left = True
-                    temp = Pool_tile((x, y), green, left)
-                    self.tiles_groop.add(temp)
-                    self.pool_groop.add(temp)
+                    elif layer['name'] == 'Fruits':
+                        img = All_imges[cell]
+                        temp = Fruit((x, y), img)
+                        self.fruits_groop.add(temp)
 
-                elif layer['name'] == 'Fruits':
-                    img = All_imges[cell]
-                    temp = Fruit((x, y), img)
-                    self.fruits_groop.add(temp)
+                    elif layer['name'] == 'Player':
+                        temp = Player((x, y))
+                        self.GlobalPlayer = temp
+                        self.player_groop.add(temp)
 
-                elif layer['name'] == 'Player':
-                    temp = Player((x, y))
-                    self.GlobalPlayer = temp
-                    self.player_groop.add(temp)
+                    elif layer['name'] == 'Rocket':
+                        temp = Goal((x, y))
+                        self.GlobalGoal = temp
+                        self.Goal_groop.add(temp)
 
-                elif layer['name'] == 'Rocket':
-                    temp = Goal((x, y))
-                    self.GlobalGoal = temp
-                    self.Goal_groop.add(temp)
+            elif layer['type'] == 'objectgroup':
+
+                if layer['name'] == 'Doors':
+                    for obj in layer['objects']:
+                        img_id = obj['gid']
+                        for prop in obj['properties']:
+                            if prop['name'] == 'id':
+                                id = prop['value']
+                        x = obj['x']
+                        y = obj['y'] - 64
+                        pos = (x,y)
+                        Temp = Door(pos,id)
+                        self.door_groop.add(Temp)
+
+                if layer['name'] == 'Buttons':
+                    for obj in layer['objects']:
+                        img_id = obj['gid']
+                        for prop in obj['properties']:
+                            if prop['name'] == 'id':
+                                id = prop['value']
+                        x = obj['x']
+                        y = obj['y'] - 64
+                        pos = (x,y)
+                        Temp = Button(pos,id)
+                        self.button_groop.add(Temp)
+
+
 
     def horizontal_movement_collision(self):
 
@@ -177,6 +209,7 @@ class Level():
         for sprite in self.fruits_groop.sprites():
             if sprite.rect.colliderect(player.rect):
                 sprite.on_player_colade()
+                self.level_score += 1
 
     def chek_goal_reach(self):
 
@@ -207,6 +240,9 @@ class Level():
         self.door_groop.draw(self.screen)
         self.fruits_groop.draw(self.screen)
         self.Goal_groop.draw(self.screen)
+
+        self.UserInterface.draw_health(self.GlobalPlayer.health, 100)
+        self.UserInterface.draw_fruits(self.level_score)
 
         self.pool_groop.update()
         self.Goal_groop.update()

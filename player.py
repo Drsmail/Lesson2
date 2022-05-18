@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 8
         self.gravity = 0.8
-        self.jump_speed = -40 #-20
+        self.jump_speed = -20 #-20
 
         #player anim
         self.frame_index = 0
@@ -28,6 +28,9 @@ class Player(pygame.sprite.Sprite):
         self.status = 'stand'
         self.facing_right = True
         self.on_ground = False
+
+        #sounds
+        self.jump_sound = pygame.mixer.Sound("Ino_game_asssets/music/jump.mp3")
 
 
 
@@ -82,6 +85,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         self.direction.y = self.jump_speed
+        self.jump_sound.play()
 
     def animate(self):
 
