@@ -245,4 +245,9 @@ class Level():
         self.UserInterface.draw_fruits(self.level_score)
 
         self.pool_groop.update()
-        self.Goal_groop.update()
+        level_end = self.GlobalGoal.update()
+
+        if level_end is None:
+            return False
+        else:
+            return level_end

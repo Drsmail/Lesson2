@@ -36,6 +36,7 @@ class Goal(pygame.sprite.Sprite):
 
         if self.rect.y < 0:
             print("Можно грузить следующий уровень")
+            return True
 
     def update(self):
         pass

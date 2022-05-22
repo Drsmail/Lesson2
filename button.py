@@ -31,6 +31,6 @@ class Button(pygame.sprite.Sprite):
             pass
         else:
             self.is_active_prev = False
-            self.image.fill((255, 0, 0))
-            door.close()
+            #self.image.fill((255, 0, 0))
+            #door.close()
 

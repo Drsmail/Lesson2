@@ -1,6 +1,7 @@
 import pygame
 from level import Level
 import json
+from support import get_all_levels
 
 class Game():
 
@@ -11,18 +12,37 @@ class Game():
         self.GameIsRuning = True
         self.screen = screen
 
+    def __del__(self):
+        return
+
+
         #load first level
-        self.first_level_path = "Ino_game_asssets/Levels"
 
-        with open("Ino_game_asssets/Levels/level_0.tmj", "r") as level_row:
-            level_data = json.load(level_row)
+        levels_path = "Ino_game_asssets/Levels/JSON_LEVELS"
+        self.Levels = get_all_levels(levels_path)
 
-        self.current_level = Level(level_data, self.first_level_path, screen)
+        self.curent_level_index = 1
+        self.current_level = Level(self.Levels[self.curent_level_index][0], self.Levels[self.curent_level_index][1], screen)
         self.current_level.load()
+        self.levelCompete = False
 
     def runGame(self):
 
-        self.current_level.run()
+        self.levelCompete = self.current_level.run()
+
+        if (self.levelCompete == True):
+            self.curent_level_index += 1
+            self.current_level = Level(self.Levels[self.curent_level_index][0], self.Levels[self.curent_level_index][1], self.screen)
+            self.current_level.load()
+
+            if (self.curent_level_index == len(self.Levels)):
+                print("Вы прошли игру")
+
+
+
+        print("Готов сменить уровень")
+
+
 
 
 

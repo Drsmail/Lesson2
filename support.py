@@ -1,5 +1,6 @@
 from os import walk
 import pygame
+import json
 
 def import_folder(path):
 
@@ -24,6 +25,21 @@ def get_tiles_images(name):
             full_path = path + '/' + image
             image_surf = pygame.image.load(full_path).convert_alpha()
             surf_list.append(image_surf)
+
+def get_all_levels(path):
+
+    Levels = []
+
+    for _,__,levles_name in walk(path):
+        for lvl in levles_name:
+            full_path = path + '/' + lvl
+
+            with open(full_path, "r") as level_row:
+                level_data = json.load(level_row)
+
+            Levels.append((level_data, path + '/..'))
+
+    return Levels
 
 
 
